@@ -1,15 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import reportWebVitals from "./reportWebVitals";
+import { App } from "src/App";
+import { Menu } from "src/components/Menu";
+import { ThemeProvider } from "@emotion/react";
+import { theme } from "src/common/theme";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+      <Menu />
+      <App />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
