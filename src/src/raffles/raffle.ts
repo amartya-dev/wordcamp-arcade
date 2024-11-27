@@ -34,7 +34,6 @@ export const getRaffleData = async () => {
 
       // Parse CSV content
       const parsedData = Papa.parse<string[]>(fileContent, { header: false });
-      console.log(parsedData);
       const participants = parsedData.data
         .map((row) => row[0])
         .filter((name) => !!name);

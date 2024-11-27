@@ -16,17 +16,14 @@ export function SlotMachine({ names, logoUrl }: SlotMachineProps) {
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
   const scrollContainerRef = useRef<HTMLDivElement>(null); // Ref for the scroll container
 
+  const scrollRounds = 4;
+  const itemHeight = 130;
+
   const [party, setParty] = useState<boolean>(false);
 
   const theme = useTheme();
 
   const handleDraw = () => {
-    setParty(true);
-
-    setTimeout(() => {
-      setParty(false);
-    }, 1000);
-
     if (availableNames.length === 1) {
       return;
     }
@@ -39,19 +36,55 @@ export function SlotMachine({ names, logoUrl }: SlotMachineProps) {
     const randomIndex = Math.floor(Math.random() * newAvailableNames.length); // Randomly select an index to scroll to
     setSelectedIndex(randomIndex);
 
-    // Calculate the scroll offset for the selected index
-    const offset = randomIndex * 130;
+    // Scroll a couple times
+    let rounds = 0;
+    const scrollThrougList = () => {
+      if (scrollContainerRef.current) {
+        if (rounds % 2 == 0) {
+          console.log(
+            "Scrolling to ",
+            itemHeight * (newAvailableNames.length - 1)
+          );
+          scrollContainerRef.current.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        } else {
+          console.log("Scrolling to ", 0);
+          scrollContainerRef.current.scrollTo({
+            top: itemHeight * (newAvailableNames.length - 1),
+            behavior: "smooth",
+          });
+        }
+      }
 
-    // Scroll the container to the offset position
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
-        top: offset,
-        behavior: "smooth",
-      });
-    }
+      // Now continue the scroll until rounds are completed
+      if (rounds < scrollRounds) {
+        setTimeout(scrollThrougList, 500);
+      } else {
+        // Scroll to the final name
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({
+            top: 130 * randomIndex,
+            behavior: "smooth",
+          });
+        }
 
-    // Remove the selected name from the available names and add to selected names
-    setSelectedNames([...selectedNames, newAvailableNames[randomIndex]]);
+        // Add a delay before finally setting the name in the winner list
+        setTimeout(() => {
+          setParty(true);
+          setSelectedNames([...selectedNames, newAvailableNames[randomIndex]]);
+          setTimeout(() => {
+            setParty(false);
+          }, 1000);
+        }, 200);
+      }
+
+      rounds += 1;
+    };
+
+    // Start scrolling
+    scrollThrougList();
   };
 
   return (
@@ -110,7 +143,6 @@ export function SlotMachine({ names, logoUrl }: SlotMachineProps) {
                 key={name + index}
                 variant="h3"
                 textAlign={"center"}
-                color={index === selectedIndex ? "primary" : "textPrimary"}
               >
                 {name}
               </Typography>
