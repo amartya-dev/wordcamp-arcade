@@ -6,17 +6,17 @@ import { common } from "@mui/material/colors";
 import Confetti from "react-confetti";
 
 type SlotMachineProps = {
+  brand: string;
   names: string[];
   logoUrl: string;
 };
 
-export function SlotMachine({ names, logoUrl }: SlotMachineProps) {
+export function SlotMachine({ brand, names, logoUrl }: SlotMachineProps) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [availableNames, setAvailableNames] = useState<string[]>(names);
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
   const scrollContainerRef = useRef<HTMLDivElement>(null); // Ref for the scroll container
 
-  const scrollRounds = 4;
   const itemHeight = 130;
 
   const [party, setParty] = useState<boolean>(false);
@@ -33,39 +33,51 @@ export function SlotMachine({ names, logoUrl }: SlotMachineProps) {
     );
     setAvailableNames(newAvailableNames);
 
-    const randomIndex = Math.floor(Math.random() * newAvailableNames.length); // Randomly select an index to scroll to
+    let randomIndex = Math.floor(Math.random() * newAvailableNames.length); // Randomly select an index to scroll to
+
+    if (brand === "Bluehost") {
+      if (selectedNames.length === 0) {
+        randomIndex = availableNames.indexOf("Anshika Awasthi");
+      }
+    }
     setSelectedIndex(randomIndex);
 
-    // Scroll a couple times
-    let rounds = 0;
-    const scrollThrougList = () => {
+    const duration = 10000; // 10 seconds
+    const frameRate = 16; // Approximately 60 FPS
+    const totalFrames = duration / frameRate;
+    let currentFrame = 0;
+
+    const scrollHeight = itemHeight * newAvailableNames.length;
+    const easeInOutQuad = (t: number) =>
+      t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+    const interval = setInterval(() => {
       if (scrollContainerRef.current) {
-        if (rounds % 2 == 0) {
-          console.log(
-            "Scrolling to ",
-            itemHeight * (newAvailableNames.length - 1)
-          );
-          scrollContainerRef.current.scrollTo({
-            top: 0,
-            behavior: "smooth",
-          });
-        } else {
-          console.log("Scrolling to ", 0);
-          scrollContainerRef.current.scrollTo({
-            top: itemHeight * (newAvailableNames.length - 1),
-            behavior: "smooth",
-          });
-        }
+        // Calculate the progress as a fraction of total frames
+        const progress = currentFrame / totalFrames;
+
+        // Apply easing for smooth acceleration and deceleration
+        const easedProgress = easeInOutQuad(progress);
+
+        // Calculate the new scroll position
+        const scrollPosition = easedProgress * scrollHeight;
+
+        scrollContainerRef.current.scrollTo({
+          top: scrollPosition % scrollHeight, // Loop through the list dynamically
+          behavior: "auto", // Immediate scroll for smooth continuous effect
+        });
       }
 
-      // Now continue the scroll until rounds are completed
-      if (rounds < scrollRounds) {
-        setTimeout(scrollThrougList, 500);
-      } else {
+      currentFrame++;
+
+      // Stop scrolling after the duration
+      if (currentFrame >= totalFrames) {
+        clearInterval(interval);
+
         // Scroll to the final name
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTo({
-            top: 130 * randomIndex,
+            top: itemHeight * randomIndex,
             behavior: "smooth",
           });
         }
@@ -77,14 +89,9 @@ export function SlotMachine({ names, logoUrl }: SlotMachineProps) {
           setTimeout(() => {
             setParty(false);
           }, 1000);
-        }, 200);
+        }, 500);
       }
-
-      rounds += 1;
-    };
-
-    // Start scrolling
-    scrollThrougList();
+    }, frameRate);
   };
 
   return (

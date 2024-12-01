@@ -12,7 +12,6 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <Menu />
       <App />
     </ThemeProvider>
   </React.StrictMode>

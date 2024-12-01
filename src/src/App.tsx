@@ -4,6 +4,7 @@ import { getRaffleData, RaffleData, RaffleDataItem } from "./raffles/raffle";
 import { useEffect, useState } from "react";
 import { common } from "@mui/material/colors";
 import { Icon } from "@iconify/react";
+import { LogoDisplayPage } from "./components/LogoDisplayPage";
 
 const RootComponent = styled("div")({
   backgroundImage: "url(/arcadeBackground.png)",
@@ -15,6 +16,7 @@ export const App = () => {
   const [raffleData, setRaffleData] = useState<RaffleData>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedBrand, setSelectedBrand] = useState<RaffleDataItem>();
+  const [displayBrand, setDisplayBrand] = useState<boolean>(false);
 
   const populateRaffleData = async () => {
     setLoading(true);
@@ -25,6 +27,26 @@ export const App = () => {
   useEffect(() => {
     populateRaffleData();
   }, []);
+
+  if (selectedBrand && displayBrand) {
+    return (
+      <RootComponent>
+        <Stack
+          direction={"row"}
+          justifyContent={"center"}
+          alignItems={"center"}
+          pt={4}
+        >
+          <img alt={"Arcade"} src="/arcadeBanner.png" />
+        </Stack>
+        <LogoDisplayPage
+          brand={selectedBrand?.brand}
+          logoUrl={selectedBrand?.logoUrl}
+          setSelectedBrand={setDisplayBrand}
+        />
+      </RootComponent>
+    );
+  }
 
   if (selectedBrand) {
     return (
@@ -47,6 +69,7 @@ export const App = () => {
         </Button>
         <Stack height={"60%"} justifyContent={"center"} alignItems={"center"}>
           <SlotMachine
+            brand={selectedBrand.brand}
             logoUrl={selectedBrand.logoUrl}
             names={selectedBrand.participants}
           />
@@ -83,6 +106,7 @@ export const App = () => {
                   cursor: "pointer",
                 }}
                 onClick={() => {
+                  setDisplayBrand(true);
                   setSelectedBrand(raffleDataItem);
                 }}
               >
