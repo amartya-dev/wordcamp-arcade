@@ -35,11 +35,6 @@ export function SlotMachine({ brand, names, logoUrl }: SlotMachineProps) {
 
     let randomIndex = Math.floor(Math.random() * newAvailableNames.length); // Randomly select an index to scroll to
 
-    if (brand === "Bluehost") {
-      if (selectedNames.length === 0) {
-        randomIndex = availableNames.indexOf("Anshika Awasthi");
-      }
-    }
     setSelectedIndex(randomIndex);
 
     const duration = 10000; // 10 seconds
